@@ -16,48 +16,50 @@ async function fetchJsonSchemas() {
 
   if (error) {
     console.error('Error fetching json schemas:', error);
-  } else {
-    console.log('Json schemas:', data);
+    return { data: null, error };
   }
+
+  console.log('Json schemas:', data);
+  return { data, error: null };
 }
 
-fetchJsonSchemas();
+async function main() {
+  const { data: schemas, error } = await fetchJsonSchemas();
+
+  if (error) {
+    console.error('Error fetching json schemas:', error);
+    return;
+  }
+
+  await generateTypes(schemas);
+}
+
+main();
 
 import { compile } from 'json-schema-to-typescript';
 import * as fs from 'fs';
 
-const schemas = [
-  "client_schema.json",
-  "financial_analysis_schema.json",
-  "assessment_schema.json",
-  "document_schema.json",
-  "document_metadata_schema.json",
-  "subscription_schema.json",
-  "user_schema.json",
-];
-
-async function generateTypes() {
+async function generateTypes(schemas: any[]) {
   try {
-    // Create types directory if it doesn't exist
-    if (!fs.existsSync('./typescript')) {
-      fs.mkdirSync('./typescript');
+    // Create pages/types directory if it doesn't exist
+    if (!fs.existsSync('./pages/types')) {
+      fs.mkdirSync('./pages/types', { recursive: true });
     }
 
     // Iterate over schemas
-    for (const schemaFile of schemas) {
-      // Read the schema
-      const schema = JSON.parse(fs.readFileSync(`./json_schemas/${schemaFile}`, 'utf-8'));
+    for (const schema of schemas) {
+      const schemaName = schema.name;
+      const schemaData = schema.json_schema;
 
       // Compile schema to TypeScript
-      const ts = await compile(schema, schemaFile.replace('.json', '').replace('_', ' ').replace('schema', '')); // Generate name from file name
+      const ts = await compile(schemaData, schemaName);
 
       // Write the generated TypeScript interface to a file
-      fs.writeFileSync(`./typescript/${schemaFile.replace('.json', '.ts').replace('_', '-')}`, ts);
-      console.log(`Successfully generated TypeScript interface for ${schemaFile}!`);
+      const camelCaseName = schemaName.replace('_schema', '').replace(/_([a-z])/g, (g: string) => g[1].toUpperCase()).replace(/^jsons/, 'json').replace(/Schema/, 'Schemas');
+      fs.writeFileSync(`./pages/types/${camelCaseName}.ts`, ts);
+      console.log(`Successfully generated TypeScript interface for ${schemaName}!`);
     }
   } catch (error) {
     console.error('Error generating TypeScript interface:', error);
   }
 }
-
-generateTypes();
