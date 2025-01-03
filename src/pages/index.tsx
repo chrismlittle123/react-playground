@@ -36,6 +36,9 @@ export default function Home(): JSX.Element {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      const document_id = uuidv4();
+      console.log('Generated document ID:', document_id);
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('document_id', document_id);
@@ -59,9 +62,6 @@ export default function Home(): JSX.Element {
 
         setFilePath(data.filePath);
 
-        const document_id = uuidv4();
-        console.log('Generated document ID:', document_id);
-
         // Convert file to Buffer for S3 upload
         const fileBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(fileBuffer);
@@ -78,7 +78,7 @@ export default function Home(): JSX.Element {
           id: document_id,
           client_id: '550e8400-e29b-41d4-a716-446655440060',
           file_name: 'original.pdf',
-          file_path: `https://simply-comply-bucket-654654324108.s3.eu-west-2.amazonaws.com/documents/pdf/${document_id}/original.pdf`,
+          file_path: url,
           file_size: file.size,
           mime_type: "application/pdf",
           created_at: new Date().toISOString(),

@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 async function downloadFile(url: string, fileName: string) {
   try {
     const response = await axios.get(url, { responseType: 'stream' });
-    const filePath = path.join(__dirname, '../downloads', fileName);
+    const filePath = path.join(__dirname, '../scripts/downloads', fileName);
     const writer = fs.createWriteStream(filePath);
 
     response.data.pipe(writer);
@@ -46,12 +46,12 @@ async function testS3Upload() {
       const downloadUrl = `https://simply-comply-bucket-654654324108.s3.eu-west-2.amazonaws.com/documents/pdf/${document_id}/original.pdf`;
 
       // Download and verify the file
-      const downloadFileName = `downloaded_${sourceFileName}`;
+      const downloadFileName = `${document_id}.pdf`;
       await downloadFile(downloadUrl, downloadFileName);
       console.log('File downloaded and verified successfully');
 
       // Verify the file exists in the downloads folder
-      const downloadedFilePath = path.join(__dirname, '../downloads', downloadFileName);
+      const downloadedFilePath = path.join(__dirname, 'downloads', downloadFileName);
       if (fs.existsSync(downloadedFilePath)) {
         console.log('File exists in downloads folder:', downloadedFilePath);
       } else {
