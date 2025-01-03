@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Documents, DocumentType } from './types/documents';
 import { v4 as uuidv4 } from 'uuid';
+import { uploadToS3 } from './api/s3';
 
 export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
@@ -28,13 +29,25 @@ export default function Home(): JSX.Element {
       const document_id = uuidv4();
       console.log('Generated document ID:', document_id);
 
+      // Convert file to Buffer for S3 upload
+      const fileBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(fileBuffer);
+
+      // Upload to S3
+      const { url, error } = await uploadToS3(buffer, document_id, file.type);
+
+      if (error) {
+        console.error('Error uploading to S3:', error);
+        return;
+      }
+
       const newDoc: Documents = {
         id: document_id,
         client_id: '550e8400-e29b-41d4-a716-446655440060',
         file_name: 'original.pdf',
         file_path: `documents/pdf/${document_id}/original.pdf`,
-        file_size: 2048,
-        mime_type: 'application/pdf',
+        file_size: file.size,
+        mime_type: "application/pdf",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         document_type: 'BANK_STATEMENT',
