@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Documents, DocumentType } from './types/documents';
 import type { DocumentMetadata } from './types/documentMetadata';
 import type { FinancialAnalysis } from './types/financialAnalysis';
+import type { Assessments } from './types/assessments';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3 } from './api/s3';
 import { TableSubscriber } from './api/subscriber';
@@ -12,6 +13,7 @@ export default function Home(): JSX.Element {
   const [documentMetadata, setDocumentMetadata] = useState<DocumentMetadata[]>([]);
   const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis[]>([]);
   const [subscriber, setSubscriber] = useState<TableSubscriber<DocumentMetadata | FinancialAnalysis> | null>(null);
+  const [assessments, setAssessments] = useState<Assessments[]>([]);
 
   useEffect(() => {
     // Initialize metadata subscriber
@@ -30,6 +32,14 @@ export default function Home(): JSX.Element {
     });
     financialSubscriber.subscribe().catch(console.error);
 
+    // Initialize assessments subscriber
+    const assessmentsSubscriber = new TableSubscriber<Assessments>('assessments');
+    assessmentsSubscriber.setNewRecordCallback(async (record: Assessments) => {
+      console.log('New assessment received:', record);
+      setAssessments(prev => [...prev, record]);
+    });
+    assessmentsSubscriber.subscribe().catch(console.error);
+
     setSubscriber(metadataSubscriber);
 
     // Cleanup on unmount
@@ -39,6 +49,9 @@ export default function Home(): JSX.Element {
       }
       if (financialSubscriber) {
         financialSubscriber.unsubscribe().catch(console.error);
+      }
+      if (assessmentsSubscriber) {
+        assessmentsSubscriber.unsubscribe().catch(console.error);
       }
     };
   }, []);
@@ -151,6 +164,19 @@ export default function Home(): JSX.Element {
             <p>Type: {analysis.metadata?.analysis_type}</p>
             <pre>
               {JSON.stringify(analysis, null, 2)}
+            </pre>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h2>Assessments:</h2>
+        {assessments.map(assessment => (
+          <div key={assessment.id}>
+            <h3>Assessment ID: {assessment.id}</h3>
+            <p>Type: {assessment.assessment_type}</p>
+            <pre>
+              {JSON.stringify(assessment, null, 2)}
             </pre>
           </div>
         ))}
