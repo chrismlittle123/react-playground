@@ -1,5 +1,11 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+console.log('AWS_ACCESS_KEY_ID_ADMIN:', process.env.AWS_ACCESS_KEY_ID_ADMIN);
+console.log('AWS_SECRET_ACCESS_KEY_ADMIN:', process.env.AWS_SECRET_ACCESS_KEY_ADMIN);
 
 // Create STS client with admin credentials
 const stsClient = new STSClient({
@@ -39,14 +45,19 @@ async function getTemporaryCredentials() {
 export async function uploadToS3(
   file: Buffer,
   document_id: string,
-  contentType: string
+  contentType: string,
 ): Promise<{ url: string; error: Error | null }> {
   try {
     const tempCredentials = await getTemporaryCredentials();
     
+    // Ensure all credential values are strings before creating S3Client
     const s3Client = new S3Client({
       region: 'eu-west-2',
-      credentials: tempCredentials
+      credentials: {
+        accessKeyId: tempCredentials.accessKeyId || '',
+        secretAccessKey: tempCredentials.secretAccessKey || '',
+        sessionToken: tempCredentials.sessionToken || ''
+      }
     });
 
     const bucketName = 'simply-comply-bucket-654654324108';

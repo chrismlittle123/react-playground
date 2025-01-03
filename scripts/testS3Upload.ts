@@ -44,9 +44,11 @@ async function testS3Upload() {
     // Read the file
     const fileBuffer = fs.readFileSync(filePath);
 
+    const document_id = fileName.replace('.pdf', '');
+
     console.log('Uploading file to S3...');
     // Upload to S3
-    const { url, error } = await uploadToS3(fileBuffer, fileName.replace('.pdf', ''), 'application/pdf');
+    const { url, error } = await uploadToS3(fileBuffer, document_id, 'application/pdf');
 
     if (error) {
       console.error('Error uploading to S3:', error);
