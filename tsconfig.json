@@ -19,6 +19,9 @@
     "jsx": "preserve",
     "incremental": true
   },
+  "ts-node": {
+    "esm": true
+  },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
