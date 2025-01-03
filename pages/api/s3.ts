@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 

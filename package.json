@@ -13,6 +13,7 @@
     "@playwright/test": "^1.49.1",
     "@supabase/supabase-js": "^2.47.10",
     "@types/dotenv": "^6.1.1",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "formidable": "^3.5.2",
     "json-schema-to-typescript": "^15.0.3",

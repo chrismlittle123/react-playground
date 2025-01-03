@@ -38,6 +38,7 @@ export default function Home(): JSX.Element {
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('document_id', document_id);
 
       console.log('File selected for upload:', file.name, file.size, file.type);
       console.log('FormData created with file:', formData.get('file'));
