@@ -5,12 +5,11 @@ dotenv.config();
 async function getItems() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || '';
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseKey, { db: { schema: 'dev' } });
 
   try {
     // Get document metadata
     const { data: documentMetadata, error: docError } = await supabase
-      .schema('dev')
       .from('document_metadata')
       .select('*')
       .eq('id', '29f1b604-3697-4116-b811-4bf9c1ef75a9')
@@ -24,7 +23,6 @@ async function getItems() {
 
     // Get financial analysis
     const { data: financialAnalysis, error: finError } = await supabase
-      .schema('dev')
       .from('financial_analysis')
       .select('*')
       .eq('id', '01676b20-47d9-4290-b749-7f61df3d80ce')
@@ -38,7 +36,6 @@ async function getItems() {
 
     // Get assessments
     const { data: assessments, error: assessError } = await supabase
-      .schema('dev')
       .from('assessments')
       .select('*')
       .eq('id', '01676b20-47d9-4290-b749-7f61df3d80ce')

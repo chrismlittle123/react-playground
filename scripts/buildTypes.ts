@@ -6,11 +6,10 @@ dotenv.config();
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_KEY || '';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, { db: { schema: 'dev' } });
 
 async function fetchJsonSchemas() {
   const { data, error } = await supabase
-    .schema('dev')
     .from('json_schemas')
     .select('*');
 

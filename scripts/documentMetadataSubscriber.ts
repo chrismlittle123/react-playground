@@ -17,7 +17,7 @@ export class DocumentMetadataSubscriber {
       throw new Error('Missing Supabase credentials');
     }
 
-    this.supabase = createClient(supabaseUrl, supabaseKey);
+    this.supabase = createClient(supabaseUrl, supabaseKey, { db: { schema: 'dev' } });
   }
 
   async subscribe(): Promise<void> {

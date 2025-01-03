@@ -8,7 +8,7 @@ dotenv.config();
 async function testDocumentMetadataSubscriber() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || '';
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseKey, { db: { schema: 'dev' } });
 
   try {
     // Construct a valid item using the DocumentMetadata interface
@@ -59,7 +59,6 @@ async function testDocumentMetadataSubscriber() {
 
     // Insert the constructed item into the document_metadata table
     const { data, error } = await supabase
-      .schema('dev')
       .from('document_metadata')
       .insert([newItem]);
 
