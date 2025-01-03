@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Documents, DocumentType } from './types/documents';
 import type { DocumentMetadata } from './types/documentMetadata';
+import type { FinancialAnalysis } from './types/financialAnalysis';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3 } from './api/s3';
 import { TableSubscriber } from './api/subscriber';
@@ -9,26 +10,35 @@ export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
   const [documents, setDocuments] = useState<Documents[]>([]);
   const [documentMetadata, setDocumentMetadata] = useState<DocumentMetadata[]>([]);
-  const [subscriber, setSubscriber] = useState<TableSubscriber<DocumentMetadata> | null>(null);
+  const [financialAnalysis, setFinancialAnalysis] = useState<FinancialAnalysis[]>([]);
+  const [subscriber, setSubscriber] = useState<TableSubscriber<DocumentMetadata | FinancialAnalysis> | null>(null);
 
   useEffect(() => {
-    // Initialize subscriber
+    // Initialize metadata subscriber
     const metadataSubscriber = new TableSubscriber<DocumentMetadata>('document_metadata');
-
-    // Use setNewRecordCallback to update UI
     metadataSubscriber.setNewRecordCallback(async (record: DocumentMetadata) => {
       console.log('New document metadata received:', record);
       setDocumentMetadata(prev => [...prev, record]);
     });
-
-    // Start subscription
     metadataSubscriber.subscribe().catch(console.error);
+
+    // Initialize financial analysis subscriber
+    const financialSubscriber = new TableSubscriber<FinancialAnalysis>('financial_analysis');
+    financialSubscriber.setNewRecordCallback(async (record: FinancialAnalysis) => {
+      console.log('New financial analysis received:', record);
+      setFinancialAnalysis(prev => [...prev, record]);
+    });
+    financialSubscriber.subscribe().catch(console.error);
+
     setSubscriber(metadataSubscriber);
 
     // Cleanup on unmount
     return () => {
       if (metadataSubscriber) {
         metadataSubscriber.unsubscribe().catch(console.error);
+      }
+      if (financialSubscriber) {
+        financialSubscriber.unsubscribe().catch(console.error);
       }
     };
   }, []);
@@ -81,8 +91,8 @@ export default function Home(): JSX.Element {
           file_path: url,
           file_size: file.size,
           mime_type: "application/pdf",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          created_at: new Date().toISOString().replace('Z', '000Z'),
+          updated_at: new Date().toISOString().replace('Z', '000Z'),
           document_type: 'BANK_STATEMENT',
           document_status: 'PROCESSING',
           validation_errors: []
@@ -128,6 +138,19 @@ export default function Home(): JSX.Element {
             <p>Type: {metadata.document_type}</p>
             <pre>
               {JSON.stringify(metadata.document_metadata, null, 2)}
+            </pre>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h2>Financial Analysis:</h2>
+        {financialAnalysis.map(analysis => (
+          <div key={analysis.id}>
+            <h3>Document ID: {analysis.id}</h3>
+            <p>Type: {analysis.metadata?.analysis_type}</p>
+            <pre>
+              {JSON.stringify(analysis, null, 2)}
             </pre>
           </div>
         ))}
