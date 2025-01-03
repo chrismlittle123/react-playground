@@ -4,7 +4,7 @@ import type { DocumentMetadata } from './types/documentMetadata';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToS3 } from './api/s3';
 import { TableSubscriber } from './api/subscriber';
-
+import { insertRow } from './api/supabase';
 export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
   const [documents, setDocuments] = useState<Documents[]>([]);
@@ -87,6 +87,15 @@ export default function Home(): JSX.Element {
           document_status: 'PROCESSING',
           validation_errors: []
         };
+
+        // Insert document into Supabase
+        const { data: insertedDoc, error: insertError } = await insertRow('documents', newDoc);
+        
+        if (insertError) {
+          console.error('Error inserting document into Supabase:', insertError);
+          return;
+        }
+        console.log('Document inserted into Supabase:', insertedDoc);
 
         console.log('New document object:', newDoc);
 
