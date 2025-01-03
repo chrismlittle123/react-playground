@@ -1,6 +1,5 @@
 import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
-import type { DocumentMetadata } from '../pages/types/documentMetadata';
 
 // Load environment variables
 dotenv.config();
