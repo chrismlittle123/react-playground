@@ -3,10 +3,11 @@ import * as path from 'path';
 import { uploadToS3 } from '../pages/api/s3';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+
 async function downloadFile(url: string, fileName: string) {
   try {
     const response = await axios.get(url, { responseType: 'stream' });
-    const filePath = path.join(__dirname, '../../uploads', fileName);
+    const filePath = path.join(__dirname, '../downloads', fileName);
     const writer = fs.createWriteStream(filePath);
 
     response.data.pipe(writer);
@@ -23,17 +24,14 @@ async function downloadFile(url: string, fileName: string) {
 async function testS3Upload() {
   try {
     console.log('Starting S3 upload test...');
-    // Specify the file to upload
-
+    // Generate a unique document_id
     const document_id = uuidv4();
-    const fileName = 'original.pdf';
-    const filePath = path.join(__dirname, '../../uploads', fileName);
+    const sourceFileName = 'monzo_november.pdf';
+    const sourcePath = path.join(__dirname, 'raw_pdfs', sourceFileName);
 
-    console.log('Reading file from path:', filePath);
+    console.log('Reading file from path:', sourcePath);
     // Read the file
-    const fileBuffer = fs.readFileSync(filePath);
-
-    const document_id = fileName.replace('.pdf', '');
+    const fileBuffer = fs.readFileSync(sourcePath);
 
     console.log('Uploading file to S3...');
     // Upload to S3
@@ -44,17 +42,20 @@ async function testS3Upload() {
     } else {
       console.log('File uploaded successfully to S3:', url);
 
+      // Construct the download URL
+      const downloadUrl = `https://simply-comply-bucket-654654324108.s3.eu-west-2.amazonaws.com/documents/pdf/${document_id}/original.pdf`;
+
       // Download and verify the file
-      const downloadFileName = `downloaded_${fileName}`;
-      await downloadFile(url, downloadFileName);
+      const downloadFileName = `downloaded_${sourceFileName}`;
+      await downloadFile(downloadUrl, downloadFileName);
       console.log('File downloaded and verified successfully');
 
-      // Verify the file exists in the uploads folder
-      const downloadedFilePath = path.join(__dirname, '../../uploads', downloadFileName);
+      // Verify the file exists in the downloads folder
+      const downloadedFilePath = path.join(__dirname, '../downloads', downloadFileName);
       if (fs.existsSync(downloadedFilePath)) {
-        console.log('File exists in uploads folder:', downloadedFilePath);
+        console.log('File exists in downloads folder:', downloadedFilePath);
       } else {
-        console.error('File does not exist in uploads folder:', downloadedFilePath);
+        console.error('File does not exist in downloads folder:', downloadedFilePath);
       }
     }
   } catch (error) {
@@ -62,4 +63,4 @@ async function testS3Upload() {
   }
 }
 
-testS3Upload(); 
+testS3Upload();
