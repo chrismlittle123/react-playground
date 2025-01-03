@@ -57,19 +57,13 @@ async function testDocumentMetadataSubscriber() {
       },
     };
 
-    // Insert the constructed item into the document_metadata table
-    const { data, error } = await supabase
+    console.log('Attempting to insert item:', newItem);
+    await supabase
       .from('document_metadata')
-      .insert([newItem]);
-
-    if (error) {
-      console.error('Error inserting item:', error);
-    } else {
-      console.log('Inserted item:', data);
-    }
-
+      .upsert([newItem]);
   } catch (error) {
-    console.error('Error during test:', error);
+    console.error('Error:', error);
+    throw error;
   }
 }
 
