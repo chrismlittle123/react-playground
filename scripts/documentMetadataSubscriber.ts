@@ -17,7 +17,7 @@ export class DocumentMetadataSubscriber {
       throw new Error('Missing Supabase credentials');
     }
 
-    this.supabase = createClient(supabaseUrl, supabaseKey, { db: { schema: 'dev' } });
+    this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
   async subscribe(): Promise<void> {
@@ -30,8 +30,8 @@ export class DocumentMetadataSubscriber {
         .on(
           'postgres_changes',
           {
-            event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
-            schema: 'dev', // Your schema name
+            event: '*',
+            schema: 'dev',
             table: 'document_metadata'
           },
           async (payload) => {
