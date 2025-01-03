@@ -4,9 +4,6 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-console.log('AWS_ACCESS_KEY_ID_ADMIN:', process.env.AWS_ACCESS_KEY_ID_ADMIN);
-console.log('AWS_SECRET_ACCESS_KEY_ADMIN:', process.env.AWS_SECRET_ACCESS_KEY_ADMIN);
-
 // Create STS client with admin credentials
 const stsClient = new STSClient({
   region: 'eu-west-2',
