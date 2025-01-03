@@ -126,4 +126,8 @@ export class TableSubscriber<T> {
       }, 30000); // Check every 30 seconds
     });
   }
+
+  public setNewRecordCallback(callback: (record: T) => Promise<void>): void {
+    this.handleNewRecord = callback;
+  }
 }

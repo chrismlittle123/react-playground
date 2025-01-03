@@ -8,7 +8,6 @@ import { TableSubscriber } from './api/subscriber';
 export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
   const [documents, setDocuments] = useState<Documents[]>([]);
-  const [dummyDoc, setDummyDoc] = useState<Documents | null>(null);
   const [documentMetadata, setDocumentMetadata] = useState<DocumentMetadata[]>([]);
   const [subscriber, setSubscriber] = useState<TableSubscriber<DocumentMetadata> | null>(null);
 
@@ -16,11 +15,11 @@ export default function Home(): JSX.Element {
     // Initialize subscriber
     const metadataSubscriber = new TableSubscriber<DocumentMetadata>('document_metadata');
 
-    // Override handleNewRecord to update UI
-    metadataSubscriber.handleNewRecord = async (record: DocumentMetadata) => {
+    // Use setNewRecordCallback to update UI
+    metadataSubscriber.setNewRecordCallback(async (record: DocumentMetadata) => {
       console.log('New document metadata received:', record);
       setDocumentMetadata(prev => [...prev, record]);
-    };
+    });
 
     // Start subscription
     metadataSubscriber.subscribe().catch(console.error);
@@ -78,7 +77,7 @@ export default function Home(): JSX.Element {
           id: document_id,
           client_id: '550e8400-e29b-41d4-a716-446655440060',
           file_name: 'original.pdf',
-          file_path: `documents/pdf/${document_id}/original.pdf`,
+          file_path: `https://simply-comply-bucket-654654324108.s3.eu-west-2.amazonaws.com/documents/pdf/${document_id}/original.pdf`,
           file_size: file.size,
           mime_type: "application/pdf",
           created_at: new Date().toISOString(),
@@ -90,7 +89,6 @@ export default function Home(): JSX.Element {
 
         console.log('New document object:', newDoc);
 
-        setDummyDoc(newDoc);
         setDocuments(prev => [...prev, newDoc]);
 
         console.log('S3 upload URL:', url);
@@ -102,18 +100,14 @@ export default function Home(): JSX.Element {
 
   return (
     <div>
-      <h1>Hello world</h1>
+      <h1>File Upload</h1>
       <input type="file" accept="application/pdf" onChange={handleFileUpload} />
-      {filePath && <p>File path: {filePath}</p>}
       
       <div>
-        <h2>Uploaded Documents:</h2>
-        {documents.map(doc => (
-          <div key={doc.id}>
-            <p>Document Type: {doc.document_type}</p>
-            <p>File Name: {doc.file_name}</p>
-          </div>
-        ))}
+        <h2>Document</h2>
+        <pre>
+          {documents.length > 0 ? JSON.stringify(documents[documents.length - 1], null, 2) : null}
+        </pre>
       </div>
 
       <div>
@@ -127,13 +121,6 @@ export default function Home(): JSX.Element {
             </pre>
           </div>
         ))}
-      </div>
-
-      <div>
-        <h2>Document Interface Structure:</h2>
-        <pre>
-          {dummyDoc ? JSON.stringify(dummyDoc, null, 2) : null}
-        </pre>
       </div>
     </div>
   );
