@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 async function getItems() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
