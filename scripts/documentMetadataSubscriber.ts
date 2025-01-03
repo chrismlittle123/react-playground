@@ -1,22 +1,10 @@
 import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
-
+import type { DocumentMetadata } from '../pages/types/documentMetadata';
 // Load environment variables
 dotenv.config();
 
-// Define the type for document_metadata
-interface DocumentMetadata {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  document_id: string;
-  metadata: {
-    [key: string]: any;
-  };
-  // Add other fields that exist in your table
-}
-
-class DocumentMetadataSubscriber {
+export class DocumentMetadataSubscriber {
   private supabase: SupabaseClient;
   private subscription: RealtimeChannel | null = null;
   private isConnected: boolean = false;
