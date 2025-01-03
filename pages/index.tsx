@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import type { Documents } from './types/documents';
+import type { Documents, DocumentType } from './types/documents';
+import crypto from 'crypto';
 
 export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
@@ -20,18 +21,19 @@ export default function Home(): JSX.Element {
       const data = await response.json();
       setFilePath(data.filePath);
 
-      // Add dummy document
+      const document_id = crypto.randomUUID();
+
       const newDoc: Documents = {
-        id: Math.random().toString(),
-        client_id: 'dummy-client-id',
-        file_name: file.name,
-        file_path: data.filePath,
-        file_size: file.size,
+        id: document_id,
+        client_id: '550e8400-e29b-41d4-a716-446655440060',
+        file_name: 'original.pdf',
+        file_path: `documents/pdf/${document_id}/original.pdf`,
+        file_size: 2048,
         mime_type: 'application/pdf',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         document_type: 'BANK_STATEMENT',
-        document_status: 'PENDING',
+        document_status: 'PROCESSING',
         validation_errors: []
       };
 
