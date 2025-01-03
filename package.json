@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
+    "test": "vitest",
     "build": "next build",
     "start": "next start",
     "run-ts": "npx tsc $npm_config_file --outDir dist && node dist/scripts/$(basename $npm_config_file .ts).js"
