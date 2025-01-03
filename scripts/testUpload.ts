@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { uploadToS3 } from '../pages/api/s3';
 import axios from 'axios';
-
+import { v4 as uuidv4 } from 'uuid';
 async function downloadFile(url: string, fileName: string) {
   try {
     const response = await axios.get(url, { responseType: 'stream' });
@@ -24,7 +24,9 @@ async function testS3Upload() {
   try {
     console.log('Starting S3 upload test...');
     // Specify the file to upload
-    const fileName = 'ab2f7c57-0553-439f-861d-e6d37138bedc.pdf';
+
+    const document_id = uuidv4();
+    const fileName = 'original.pdf';
     const filePath = path.join(__dirname, '../../uploads', fileName);
 
     console.log('Reading file from path:', filePath);
@@ -46,6 +48,14 @@ async function testS3Upload() {
       const downloadFileName = `downloaded_${fileName}`;
       await downloadFile(url, downloadFileName);
       console.log('File downloaded and verified successfully');
+
+      // Verify the file exists in the uploads folder
+      const downloadedFilePath = path.join(__dirname, '../../uploads', downloadFileName);
+      if (fs.existsSync(downloadedFilePath)) {
+        console.log('File exists in uploads folder:', downloadedFilePath);
+      } else {
+        console.error('File does not exist in uploads folder:', downloadedFilePath);
+      }
     }
   } catch (error) {
     console.error('Error in testS3Upload:', error);
