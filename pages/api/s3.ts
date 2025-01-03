@@ -4,20 +4,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Create STS client with admin credentials
-const stsClient = new STSClient({
-  region: 'eu-west-2',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID_ADMIN || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ADMIN || ''
-  }
-});
-
 // Function to get temporary credentials
 async function getTemporaryCredentials() {
+  // Create STS client with admin credentials
+  const stsClient = new STSClient({
+    region: 'eu-west-2',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID_ADMIN || '',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ADMIN || ''
+    }
+  });
+
   const params = {
-    RoleArn: `arn:aws:iam::654654324108:role/DevAdminRole`,
-    RoleSessionName: 'S3UploadSession'
+    RoleArn: 'arn:aws:iam::654654324108:role/DevAdminRole',
+    RoleSessionName: 'S3UploadSession',
+    DurationSeconds: 3600 // 1 hour session
   };
 
   try {
@@ -25,7 +26,7 @@ async function getTemporaryCredentials() {
     const response = await stsClient.send(command);
     
     if (!response.Credentials) {
-      throw new Error('No credentials returned');
+      throw new Error('No credentials returned from STS');
     }
 
     return {
@@ -47,13 +48,16 @@ export async function uploadToS3(
   try {
     const tempCredentials = await getTemporaryCredentials();
     
-    // Ensure all credential values are strings before creating S3Client
+    if (!tempCredentials.accessKeyId || !tempCredentials.secretAccessKey || !tempCredentials.sessionToken) {
+      throw new Error('Invalid temporary credentials received');
+    }
+
     const s3Client = new S3Client({
       region: 'eu-west-2',
       credentials: {
-        accessKeyId: tempCredentials.accessKeyId || '',
-        secretAccessKey: tempCredentials.secretAccessKey || '',
-        sessionToken: tempCredentials.sessionToken || ''
+        accessKeyId: tempCredentials.accessKeyId,
+        secretAccessKey: tempCredentials.secretAccessKey,
+        sessionToken: tempCredentials.sessionToken
       }
     });
 
@@ -68,14 +72,14 @@ export async function uploadToS3(
     });
 
     await s3Client.send(command);
-
+    
     const url = `https://${bucketName}.s3.eu-west-2.amazonaws.com/${key}`;
     return { url, error: null };
   } catch (error) {
     console.error('Error uploading to S3:', error);
     return {
       url: '',
-      error: error instanceof Error ? error : new Error('Unknown error occurred')
+      error: error instanceof Error ? error : new Error('Unknown error occurred during S3 upload')
     };
   }
 }

@@ -7,7 +7,7 @@ async function testS3Upload() {
   try {
     console.log('Starting S3 upload test...');
     // Specify the file to upload
-    const fileName = '22d59376-9625-49c4-a286-10c183d38d04.pdf';
+    const fileName = 'ab2f7c57-0553-439f-861d-e6d37138bedc.pdf';
     const filePath = path.join(__dirname, '../../uploads', fileName);
 
     console.log('Reading file from path:', filePath);

@@ -16,52 +16,62 @@ export default function Home(): JSX.Element {
 
       console.log('File uploaded:', file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      console.log('Starting file upload process...');
 
-      const data = await response.json();
-      console.log('Upload response data:', data);
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-      setFilePath(data.filePath);
+        if (!response.ok) {
+          throw new Error(`Upload failed with status: ${response.status}`);
+        }
 
-      const document_id = uuidv4();
-      console.log('Generated document ID:', document_id);
+        const data = await response.json();
+        console.log('Upload response data:', data);
 
-      // Convert file to Buffer for S3 upload
-      const fileBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(fileBuffer);
+        setFilePath(data.filePath);
 
-      // Upload to S3
-      const { url, error } = await uploadToS3(buffer, document_id, file.type);
+        const document_id = uuidv4();
+        console.log('Generated document ID:', document_id);
 
-      if (error) {
-        console.error('Error uploading to S3:', error);
-        return;
+        // Convert file to Buffer for S3 upload
+        const fileBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(fileBuffer);
+
+        // Upload to S3
+        const { url, error } = await uploadToS3(buffer, document_id, file.type);
+
+        if (error) {
+          console.error('Error uploading to S3:', error);
+          return;
+        }
+
+        const newDoc: Documents = {
+          id: document_id,
+          client_id: '550e8400-e29b-41d4-a716-446655440060',
+          file_name: 'original.pdf',
+          file_path: `documents/pdf/${document_id}/original.pdf`,
+          file_size: file.size,
+          mime_type: "application/pdf",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          document_type: 'BANK_STATEMENT',
+          document_status: 'PROCESSING',
+          validation_errors: []
+        };
+
+        console.log('New document object:', newDoc);
+
+        setDummyDoc(newDoc);
+        console.log('Dummy document state set:', newDoc);
+
+        setDocuments(prev => [...prev, newDoc]);
+        console.log('Documents state updated:', documents);
+      } catch (error) {
+        console.error('Error during file upload process:', error);
       }
-
-      const newDoc: Documents = {
-        id: document_id,
-        client_id: '550e8400-e29b-41d4-a716-446655440060',
-        file_name: 'original.pdf',
-        file_path: `documents/pdf/${document_id}/original.pdf`,
-        file_size: file.size,
-        mime_type: "application/pdf",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        document_type: 'BANK_STATEMENT',
-        document_status: 'PROCESSING',
-        validation_errors: []
-      };
-
-      console.log('New document object:', newDoc);
-
-      setDummyDoc(newDoc);
-      console.log('Dummy document state set:', newDoc);
-
-      setDocuments(prev => [...prev, newDoc]);
-      console.log('Documents state updated:', documents);
     }
   };
 
