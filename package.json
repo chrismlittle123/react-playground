@@ -8,6 +8,7 @@
     "run-ts": "npx tsc $npm_config_file --outDir dist && node dist/$(basename $npm_config_file .ts).js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.721.0",
     "@supabase/supabase-js": "^2.47.10",
     "@types/dotenv": "^6.1.1",
     "dotenv": "^16.4.7",
