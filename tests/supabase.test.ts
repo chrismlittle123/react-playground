@@ -1,18 +1,22 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fetchDocuments } from '../pages/api/supabase';
+import { insertRow } from '../pages/api/supabase';
 
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
     from: vi.fn(() => ({
-      select: vi.fn(() => Promise.resolve({ data: [{ id: '1', name: 'Document 1' }], error: null }))
+      insert: vi.fn(() => Promise.resolve({ data: [{ id: '1', name: 'Test Row' }], error: null }))
     }))
   }))
 }));
 
-describe('fetchDocuments', () => {
-  it('should fetch documents from Supabase', async () => {
-    const documents = await fetchDocuments();
+describe('insertRow', () => {
+  it('should insert a row into Supabase', async () => {
+    const tableName = 'test_table';
+    const row = { id: '1', name: 'Test Row' };
 
-    expect(documents).toEqual([{ id: '1', name: 'Document 1' }]);
+    const { data, error } = await insertRow(tableName, row);
+
+    expect(data).toEqual([{ id: '1', name: 'Test Row' }]);
+    expect(error).toBeNull();
   });
 }); 
