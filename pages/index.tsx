@@ -14,7 +14,9 @@ export default function Home(): JSX.Element {
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('File uploaded:', file);
+      console.log('File selected for upload:', file.name, file.size, file.type);
+
+      console.log('FormData created with file:', formData.get('file'));
 
       console.log('Starting file upload process...');
 
@@ -69,6 +71,14 @@ export default function Home(): JSX.Element {
 
         setDocuments(prev => [...prev, newDoc]);
         console.log('Documents state updated:', documents);
+
+        console.log('Response status:', response.status);
+
+        console.log('S3 upload URL:', url);
+
+        console.log('Error during S3 upload:', error);
+
+        console.log('Final documents state:', documents);
       } catch (error) {
         console.error('Error during file upload process:', error);
       }

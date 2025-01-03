@@ -1,24 +1,27 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
-const dotenv = require('dotenv');
 
-dotenv.config();
 
 // Function to get temporary credentials
 async function getTemporaryCredentials() {
+
+    const dotenv = require('dotenv');
+    dotenv.config();
+    console.log('accessKeyId', process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_ADMIN);
+    console.log('secretAccessKey', process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY_ADMIN);
   // Create STS client with admin credentials
   const stsClient = new STSClient({
     region: 'eu-west-2',
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID_ADMIN || '',
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_ADMIN || ''
+      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_ADMIN || '',
+      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY_ADMIN || ''
     }
   });
 
   const params = {
     RoleArn: 'arn:aws:iam::654654324108:role/DevAdminRole',
     RoleSessionName: 'S3UploadSession',
-    DurationSeconds: 3600 // 1 hour session
+    DurationSeconds: 3600 
   };
 
   try {

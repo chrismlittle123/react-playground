@@ -1,8 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
 
-// Mock the S3 upload function
-const mockUploadToS3 = async () => ({ url: 'mock-url', error: null });
-
 // Define the test
 
 // Define the test
@@ -10,9 +7,6 @@ const mockUploadToS3 = async () => ({ url: 'mock-url', error: null });
 test('should upload a file via the UI and verify the upload', async ({ page }: { page: Page }) => {
   // Navigate to the home page
   await page.goto('http://localhost:3000');
-
-  // Mock the S3 upload function
-  await page.exposeFunction('uploadToS3', mockUploadToS3);
 
   // Select the file input and upload a file
   const fileInput = await page.$('input[type="file"]');
