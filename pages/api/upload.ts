@@ -12,7 +12,7 @@ export const config = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const form = new formidable.IncomingForm();
+    const form = formidable({ multiples: true });
 
     form.parse(req, (err: any, fields: formidable.Fields, files: formidable.Files) => {
       if (err) {
@@ -41,4 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
+
+  // Ensure a response is sent in case of unexpected errors
+  res.on('finish', () => {
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Unexpected error occurred' });
+    }
+  });
 } 

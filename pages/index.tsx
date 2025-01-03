@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Documents, DocumentType } from './types/documents';
-import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home(): JSX.Element {
   const [filePath, setFilePath] = useState<string>('');
@@ -13,15 +13,20 @@ export default function Home(): JSX.Element {
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('File uploaded:', file);
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       const data = await response.json();
+      console.log('Upload response data:', data);
+
       setFilePath(data.filePath);
 
-      const document_id = crypto.randomUUID();
+      const document_id = uuidv4();
+      console.log('Generated document ID:', document_id);
 
       const newDoc: Documents = {
         id: document_id,
@@ -37,8 +42,13 @@ export default function Home(): JSX.Element {
         validation_errors: []
       };
 
+      console.log('New document object:', newDoc);
+
       setDummyDoc(newDoc);
+      console.log('Dummy document state set:', newDoc);
+
       setDocuments(prev => [...prev, newDoc]);
+      console.log('Documents state updated:', documents);
     }
   };
 
